@@ -1,35 +1,43 @@
 import os
+import logging
 from flask import Flask, request, jsonify
-from pyairtable import Api
+from pyairtable import Table
 
 app = Flask(__name__)
+
+# 設置日誌輸出至標準輸出，符合 Zeabur 的日誌檢查要求
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # 從環境變數中獲取設置的值
 AIRTABLE_PERSONAL_ACCESS_TOKEN = os.getenv('AIRTABLE_PERSONAL_ACCESS_TOKEN')
 BASE_ID = os.getenv('BASE_ID')
 TABLE_NAME = os.getenv('TABLE_NAME')
-BASE_URL = os.getenv('BASE_URL')  # 讀取 BASE_URL
+BASE_URL = os.getenv('BASE_URL')  # 可選項目，用於顯示在根路由
 
-# 檢查令牌是否設置
+# 檢查必須的環境變數
 if not AIRTABLE_PERSONAL_ACCESS_TOKEN:
     raise ValueError("AIRTABLE_PERSONAL_ACCESS_TOKEN is not set in the environment variables")
 
-# 初始化 Api 並使用 Api.table 方法創建 Table
-api = Api(AIRTABLE_PERSONAL_ACCESS_TOKEN)
-table = api.table(BASE_ID, TABLE_NAME)
+# 初始化 Airtable API Table
+table = Table(AIRTABLE_PERSONAL_ACCESS_TOKEN, BASE_ID, TABLE_NAME)
 
-# 根路由
+# 根路由，用於測試連線
 @app.route('/', methods=['GET'])
 def home():
+    logger.info("根路由被訪問")
     return jsonify({'status': 'success', 'message': 'Welcome to the LIFF App API', 'base_url': BASE_URL}), 200
 
-# 提交表單路由
+# 表單提交路由
 @app.route('/submit-form', methods=['POST'])
 def submit_form():
     data = request.get_json()
+    
+    logger.info(f"收到的資料: {data}")  # 輸出接收到的資料
 
     # 驗證傳入資料
     if 'userID' not in data:
+        logger.warning("缺少 userID")
         return jsonify({'status': 'error', 'message': 'userID missing'}), 400 
 
     user_id = data.get('userID')
@@ -46,15 +54,16 @@ def submit_form():
         '疫苗名稱': vaccine_name,
         '接種日期': appointment_date
     }
+    logger.info(f"將要儲存到 Airtable 的紀錄: {new_record}")
 
     # 儲存到 Airtable
     try:
         response = table.create(new_record)
+        logger.info(f"Airtable 回應: {response}")  # 紀錄 Airtable 的回應
         return jsonify({'status': 'success', 'message': 'Data saved successfully'})
     except Exception as e:
-        print(f"Error saving to Airtable: {str(e)}")
+        logger.error(f"儲存至 Airtable 時出錯: {str(e)}")
         return jsonify({'status': 'error', 'message': 'Failed to save data to Airtable'}), 500
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)), debug=True)
