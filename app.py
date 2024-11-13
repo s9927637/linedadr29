@@ -1,13 +1,10 @@
 import os
-from dotenv import load_dotenv
 from flask import Flask, request, jsonify
 from pyairtable import Api
 
-# 手動加載 .env 文件
-load_dotenv()
 app = Flask(__name__)
 
-# 使用新的個人存取令牌
+# 從環境變數中獲取設置的值
 AIRTABLE_PERSONAL_ACCESS_TOKEN = os.getenv('AIRTABLE_PERSONAL_ACCESS_TOKEN')
 BASE_ID = os.getenv('BASE_ID')
 TABLE_NAME = os.getenv('TABLE_NAME')
@@ -31,7 +28,7 @@ def submit_form():
     data = request.get_json()
     print(f"Received raw data: {request.get_data()}")  
     print(f"Parsed JSON data: {data}")  
-    
+
     if 'userID' not in data:
         print("userID 沒有在資料中！")  
         return jsonify({'status': 'error', 'message': 'userID missing'}), 400 
@@ -54,7 +51,7 @@ def submit_form():
         '接種日期': appointment_date
     }
     print("Saving to Airtable:", new_record)  
-    
+
     try:
         response = table.create(new_record)  
         print(f"Airtable response: {response}")  
