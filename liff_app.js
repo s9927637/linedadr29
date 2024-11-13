@@ -1,7 +1,7 @@
 function initializeLiff() {
     console.log("初始化 LIFF 應用中...");
     
-    liff.init({ liffId: "2003645883-B95jgKam" }) // 替換為您的 LIFF ID
+    liff.init({ liffId: "2003645883-Rn6V0a3n" }) // 替換為您的 LIFF ID
         .then(() => {
             console.log("LIFF 初始化成功");
             if (!liff.isLoggedIn()) {
