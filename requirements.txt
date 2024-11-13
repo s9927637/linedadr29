@@ -1,0 +1,6 @@
+Flask
+Werkzeug
+requests
+pyairtable
+line-bot-sdk
+python-dotenv
