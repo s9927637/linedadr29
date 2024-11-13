@@ -53,10 +53,12 @@ def submit_form():
     print("Saving to Airtable:", new_record)  
 
     try:
-        response = table.create(new_record)  # 這一行需要縮排
+        # 確保這一行有正確縮排
+        response = table.create(new_record)
         print(f"Airtable response: {response}")
         return jsonify({'status': 'success', 'message': 'Data saved successfully'})
     except Exception as e:
+        # 這部分的程式碼也必須正確縮排
         print(f"Error saving to Airtable: {str(e)}")  # 捕捉並打印具體的錯誤訊息
         return jsonify({'status': 'error', 'message': 'Failed to save data to Airtable'}), 500
 
