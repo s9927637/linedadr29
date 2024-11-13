@@ -33,7 +33,7 @@ function submitForm() {
 
             console.log("提交資料:", { userID, name, phone, vaccineName, appointmentDate });
 
-            fetch("https://<your-cloud-run-url>/submit-form", {  // 使用 Cloud Run 的 URL
+            fetch("https://linedadr29.hkg1.zeabur.app/submit-form", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ userID, name, phone, vaccineName, appointmentDate })
