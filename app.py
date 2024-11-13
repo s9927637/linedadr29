@@ -32,8 +32,8 @@ def home():
 # 表單提交路由
 @app.route('/submit-form', methods=['POST'])
 def submit_form():
+    # 處理 POST 請求
     data = request.get_json()
-    
     logger.info(f"收到的資料: {data}")  # 輸出接收到的資料
 
     # 驗證傳入資料
@@ -65,6 +65,11 @@ def submit_form():
     except Exception as e:
         logger.error(f"儲存至 Airtable 時出錯: {str(e)}")
         return jsonify({'status': 'error', 'message': 'Failed to save data to Airtable'}), 500
+
+# 處理其他可能的 GET 請求
+@app.route('/submit-form', methods=['GET'])
+def get_form():
+    return jsonify({'status': 'success', 'message': 'Submit form page available for POST requests only'}), 405
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)), debug=True)
