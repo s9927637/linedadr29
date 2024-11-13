@@ -53,12 +53,13 @@ def submit_form():
     print("Saving to Airtable:", new_record)  
 
     try:
-        response = table.create(new_record)  
-        print(f"Airtable response: {response}")  
-        return jsonify({'status': 'success', 'message': 'Data saved successfully'})
-    except Exception as e:
-        print(f"Error saving to Airtable: {e}")
-        return jsonify({'status': 'error', 'message': 'Failed to save data to Airtable'}), 500
+    response = table.create(new_record)
+    print(f"Airtable response: {response}")
+    return jsonify({'status': 'success', 'message': 'Data saved successfully'})
+except Exception as e:
+    print(f"Error saving to Airtable: {str(e)}")  # 捕捉並打印具體的錯誤訊息
+    return jsonify({'status': 'error', 'message': 'Failed to save data to Airtable'}), 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
