@@ -1,11 +1,11 @@
 import os
 import logging
 from flask import Flask, request, jsonify
-from pyairtable import Table
+from pyairtable import Api
 
 app = Flask(__name__)
 
-# 設置日誌輸出至標準輸出，符合 Zeabur 的日誌檢查要求
+# 設置日誌輸出至標準輸出
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -19,8 +19,9 @@ BASE_URL = os.getenv('BASE_URL')  # 可選項目，用於顯示在根路由
 if not AIRTABLE_PERSONAL_ACCESS_TOKEN:
     raise ValueError("AIRTABLE_PERSONAL_ACCESS_TOKEN is not set in the environment variables")
 
-# 初始化 Airtable API Table
-table = Table(AIRTABLE_PERSONAL_ACCESS_TOKEN, BASE_ID, TABLE_NAME)
+# 使用 Api.table 方法來初始化 Airtable 表
+api = Api(AIRTABLE_PERSONAL_ACCESS_TOKEN)
+table = api.table(BASE_ID, TABLE_NAME)
 
 # 根路由，用於測試連線
 @app.route('/', methods=['GET'])
