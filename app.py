@@ -27,8 +27,8 @@ def home():
 @app.route('/submit-form', methods=['POST'])
 def submit_form():
     data = request.get_json()
-    print(f"Received raw data: {request.get_data()}")  
-    print(f"Parsed JSON data: {data}")  
+    print(f"Received raw data: {request.get_data()}")  # 打印收到的原始數據
+    print(f"Parsed JSON data: {data}")  # 打印解析後的 JSON 數據
 
     if 'userID' not in data:
         print("userID 沒有在資料中！")  
@@ -51,14 +51,14 @@ def submit_form():
         '疫苗名稱': vaccine_name,
         '接種日期': appointment_date
     }
-    print("Saving to Airtable:", new_record)  
+    print("Saving to Airtable:", new_record)  # 打印將保存到 Airtable 的數據
 
     try:
         response = table.create(new_record)
-        print(f"Airtable response: {response}")
+        print(f"Airtable response: {response}")  # 打印 Airtable 返回的響應
         return jsonify({'status': 'success', 'message': 'Data saved successfully'})
     except Exception as e:
-        print(f"Error saving to Airtable: {str(e)}")  # 捕捉並打印具體的錯誤訊息
+        print(f"Error saving to Airtable: {str(e)}")  # 打印具體的錯誤訊息
         return jsonify({'status': 'error', 'message': 'Failed to save data to Airtable'}), 500
 
 if __name__ == '__main__':
