@@ -8,6 +8,7 @@ app = Flask(__name__)
 AIRTABLE_PERSONAL_ACCESS_TOKEN = os.getenv('AIRTABLE_PERSONAL_ACCESS_TOKEN')
 BASE_ID = os.getenv('BASE_ID')
 TABLE_NAME = os.getenv('TABLE_NAME')
+BASE_URL = os.getenv('BASE_URL')  # 讀取 BASE_URL
 
 # 檢查令牌是否設置
 if not AIRTABLE_PERSONAL_ACCESS_TOKEN:
@@ -20,7 +21,7 @@ table = api.table(BASE_ID, TABLE_NAME)
 # 根路由
 @app.route('/', methods=['GET'])
 def home():
-    return jsonify({'status': 'success', 'message': 'Welcome to the LIFF App API'}), 200
+    return jsonify({'status': 'success', 'message': 'Welcome to the LIFF App API', 'base_url': BASE_URL}), 200
 
 # 提交表單路由
 @app.route('/submit-form', methods=['POST'])
@@ -53,15 +54,12 @@ def submit_form():
     print("Saving to Airtable:", new_record)  
 
     try:
-        # 確保這一行有正確縮排
         response = table.create(new_record)
         print(f"Airtable response: {response}")
         return jsonify({'status': 'success', 'message': 'Data saved successfully'})
     except Exception as e:
-        # 這部分的程式碼也必須正確縮排
         print(f"Error saving to Airtable: {str(e)}")  # 捕捉並打印具體的錯誤訊息
         return jsonify({'status': 'error', 'message': 'Failed to save data to Airtable'}), 500
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
