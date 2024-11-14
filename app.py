@@ -7,6 +7,9 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
+
+CORS(app, resources={r"/submit-form": {"origins": "https://liff.line.me"}})
+
 # 設置日誌輸出至標準輸出
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
