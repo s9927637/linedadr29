@@ -1,12 +1,21 @@
 import os
 import requests
 from flask import Flask, request, jsonify
+from flask_cors import CORS  # 引入CORS模塊以支持跨域請求
 
 app = Flask(__name__)
+CORS(app)  # 開啟CORS支持
 
 # 從環境變數中獲取Airtable的API資料
-AIRTABLE_API_URL = f"https://api.airtable.com/v0/{os.getenv('BASE_ID')}/{os.getenv('TABLE_NAME')}"
-AIRTABLE_API_KEY = os.getenv("AIRTABLE_PERSONAL_ACCESS_TOKEN")  # Airtable的個人存取令牌
+BASE_ID = os.getenv('BASE_ID')
+TABLE_NAME = os.getenv('TABLE_NAME')
+AIRTABLE_API_KEY = os.getenv('AIRTABLE_PERSONAL_ACCESS_TOKEN')
+
+# 確認必要的環境變數是否設置
+if not all([BASE_ID, TABLE_NAME, AIRTABLE_API_KEY]):
+    raise ValueError("環境變數未正確設置")
+
+AIRTABLE_API_URL = f"https://api.airtable.com/v0/{BASE_ID}/{TABLE_NAME}"
 
 # 提交表單到Airtable
 @app.route('/submit-form', methods=['POST'])
@@ -14,7 +23,7 @@ def submit_form():
     try:
         # 獲取表單提交的數據 (假設是JSON格式)
         data = request.get_json()
-        
+
         # 從表單數據中提取必要的欄位
         userID = data.get('userID')
         name = data.get('name')
@@ -22,8 +31,12 @@ def submit_form():
         vaccineName = data.get('vaccineName')
         appointmentDate = data.get('appointmentDate')
         formSubmitTime = data.get('formSubmitTime')
-        
-        # 準備發送到Airtable的數據，移除系統通知欄位
+
+        # 檢查所有欄位是否都已提供
+        if not all([userID, name, phone, vaccineName, appointmentDate, formSubmitTime]):
+            return jsonify({"status": "error", "message": "缺少必要欄位"}), 400
+
+        # 準備發送到Airtable的數據
         airtable_data = {
             "fields": {
                 "姓名": name,
@@ -53,7 +66,8 @@ def submit_form():
 
     except Exception as e:
         # 捕獲任何錯誤並返回錯誤信息
-        return jsonify({"status": "error", "message": str(e)}), 500
+        print(f"錯誤訊息: {str(e)}")  # 記錄錯誤信息以便調試
+        return jsonify({"status": "error", "message": "提交資料失敗，請稍後再試！"}), 500
 
 if __name__ == '__main__':
     # 關閉調試模式，使用預設的 host 和 port
