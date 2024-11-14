@@ -80,7 +80,7 @@
 </head>
 <body>
     <h1>疫苗預約表單</h1>
-    <form id="vaccineForm">
+    <form id="vaccineForm" method="POST">
         <label for="name">姓名：</label><br>
         <input type="text" id="name" name="name"><br><br>
 
