@@ -30,46 +30,38 @@
 
         // 提交表單函數
         function submitForm(event) {
-            event.preventDefault(); // 防止默認表單提交
+    event.preventDefault();  // 防止表單默認提交
 
-            // 確保用戶已經登入
-            if (!liff.isLoggedIn()) {
-                alert("請登入以提交表單");
-                return;
-            }
+    const userID = 'user123';  // 假設從 LIFF 用戶資料中獲取
+    const name = document.getElementById("name").value;
+    const phone = document.getElementById("phone").value;
+    const vaccineName = document.getElementById("vaccine").value;
+    const appointmentDate = document.getElementById("vaccinationDate").value;
 
-            liff.getProfile()
-                .then(profile => {
-                    const userID = profile.userId;
-                    const name = document.getElementById("name").value;
-                    const phone = document.getElementById("phone").value;
-                    const vaccineName = document.getElementById("vaccine").value;
-                    const appointmentDate = document.getElementById("vaccinationDate").value;
-
-                    // 顯示提交的資料
-                    console.log("用戶資料：", { userID, name, phone, vaccineName, appointmentDate });
-
-                    if (!name || !phone || !vaccineName || !appointmentDate) {
-                        alert("請填寫所有必要的表單欄位。");
-                        return;
-                    }
-
-                    // 送出資料到後端
-fetch("https://linedadr29.hkg1.zeabur.app/submit-form", {
-    method: "POST",  // 確保這裡是 POST 請求
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userID, name, phone, vaccineName, appointmentDate })
-})
-.then(response => response.json())
-.then(data => {
-    console.log("表單提交成功", data);
-    alert("表單提交成功！");
-})
-.catch(error => {
-    console.error("提交失敗", error);
-    alert("提交失敗，請稍後再試。");
-});
-        }
+    // 使用 fetch 發送 POST 請求到後端
+    fetch("https://linedadr29.hkg1.zeabur.app/submit-form", {
+        method: "POST",  // 以 POST 發送請求
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            userID: userID,
+            name: name,
+            phone: phone,
+            vaccineName: vaccineName,
+            appointmentDate: appointmentDate
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log("表單提交成功", data);
+        alert("資料提交成功！");
+    })
+    .catch(error => {
+        console.error("提交失敗", error);
+        alert("資料提交失敗，請稍後再試");
+    });
+}
 
         // 初始化 LIFF 應用
         initializeLiff();
