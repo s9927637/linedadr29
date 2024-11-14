@@ -1,81 +1,45 @@
-import os
-import logging
+import json
+import requests
 from flask import Flask, request, jsonify
-from pyairtable import Api
-from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
 
+AIRTABLE_API_URL = "https://api.airtable.com/v0/appaUWPkO0FfRkqTK/vaccinebooking"
+AIRTABLE_API_KEY = "patxDzbKgz2SejSrT.c49168d0eeb6d48540d14ea6e7d04c6179b66c43d34fa23c83fc40f7bcfe672b"
 
-CORS(app, resources={r"/submit-form": {"origins": "https://liff.line.me"}})
-
-# 設置日誌輸出至標準輸出
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# 從環境變數中獲取設置的值
-AIRTABLE_PERSONAL_ACCESS_TOKEN = os.getenv('AIRTABLE_PERSONAL_ACCESS_TOKEN')
-BASE_ID = os.getenv('BASE_ID')
-TABLE_NAME = os.getenv('TABLE_NAME')
-BASE_URL = os.getenv('BASE_URL')  # 可選項目，用於顯示在根路由
-
-# 檢查必須的環境變數
-if not AIRTABLE_PERSONAL_ACCESS_TOKEN:
-    raise ValueError("AIRTABLE_PERSONAL_ACCESS_TOKEN is not set in the environment variables")
-
-# 使用 Api.table 方法來初始化 Airtable 表
-api = Api(AIRTABLE_PERSONAL_ACCESS_TOKEN)
-table = api.table(BASE_ID, TABLE_NAME)
-
-# 根路由，用於測試連線
-@app.route('/', methods=['GET'])
-def home():
-    logger.info("根路由被訪問")
-    return jsonify({'status': 'success', 'message': 'Welcome to the LIFF App API', 'base_url': BASE_URL}), 200
-
-# Zeabur，用於健康檢查 URL
-@app.route('/health', methods=['GET'])
-def health_check():
-    return jsonify({'status': 'healthy'}), 200
-
-# 只處理 POST 請求
 @app.route('/submit-form', methods=['POST'])
 def submit_form():
-    print(request.json) 
-    data = request.json
-    # 處理數據
-    return jsonify({'status': 'success'})
+    data = request.get_json()
+    userID = data['userID']
+    name = data['name']
+    phone = data['phone']
+    vaccineName = data['vaccineName']
+    appointmentDate = data['appointmentDate']
+    formSubmitTime = data['formSubmitTime']
 
-    # 驗證傳入資料
-    if 'userID' not in data:
-        logger.warning("缺少 userID")
-        return jsonify({'status': 'error', 'message': 'userID missing'}), 400 
-
-    user_id = data.get('userID')
-    name = data.get('name')
-    phone = data.get('phone')
-    vaccine_name = data.get('vaccineName')
-    appointment_date = data.get('appointmentDate')
-
-    # 新紀錄
-    new_record = {
-        'userID': user_id,
-        '姓名': name,
-        '電話': phone,
-        '疫苗名稱': vaccine_name,
-        '接種日期': appointment_date
+    airtable_data = {
+        "fields": {
+            "姓名": name,
+            "電話": phone,
+            "疫苗名稱": vaccineName,
+            "接種日期": appointmentDate,
+            "userID": userID,
+            "系統通知": False,  # 初始設為 False
+            "填表時間": formSubmitTime
+        }
     }
-    logger.info(f"將要儲存到 Airtable 的紀錄: {new_record}")
 
-    # 儲存到 Airtable
-    try:
-        response = table.create(new_record)
-        logger.info(f"Airtable 回應: {response}")  # 紀錄 Airtable 的回應
-        return jsonify({'status': 'success', 'message': 'Data saved successfully'})
-    except Exception as e:
-        logger.error(f"儲存至 Airtable 時出錯: {str(e)}")
-        return jsonify({'status': 'error', 'message': 'Failed to save data to Airtable'}), 500
+    headers = {
+        "Authorization": f"Bearer {AIRTABLE_API_KEY}",
+        "Content-Type": "application/json"
+    }
+
+    response = requests.post(AIRTABLE_API_URL, json=airtable_data, headers=headers)
+    
+    if response.status_code == 201:
+        return jsonify({"message": "資料成功提交到 Airtable!"}), 200
+    else:
+        return jsonify({"message": "提交到 Airtable 失敗!"}), 500
 
 if __name__ == '__main__':
     # 關閉調試模式，使用預設的 host 和 port
