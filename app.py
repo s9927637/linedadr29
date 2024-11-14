@@ -29,10 +29,9 @@ def home():
     logger.info("根路由被訪問")
     return jsonify({'status': 'success', 'message': 'Welcome to the LIFF App API', 'base_url': BASE_URL}), 200
 
-# 表單提交路由
+# 只處理 POST 請求
 @app.route('/submit-form', methods=['POST'])
 def submit_form():
-    # 處理 POST 請求
     data = request.get_json()
     logger.info(f"收到的資料: {data}")  # 輸出接收到的資料
 
@@ -66,10 +65,6 @@ def submit_form():
         logger.error(f"儲存至 Airtable 時出錯: {str(e)}")
         return jsonify({'status': 'error', 'message': 'Failed to save data to Airtable'}), 500
 
-# 處理其他可能的 GET 請求
-@app.route('/submit-form', methods=['GET'])
-def get_form():
-    return jsonify({'status': 'success', 'message': 'Submit form page available for POST requests only'}), 405
 
 if __name__ == '__main__':
     # 關閉調試模式，使用預設的 host 和 port
