@@ -30,6 +30,12 @@
 
         // 提交表單
         function submitForm() {
+            // 確保用戶已經登入
+            if (!liff.isLoggedIn()) {
+                alert("請登入以提交表單");
+                return;
+            }
+
             liff.getProfile()
                 .then(profile => {
                     const userID = profile.userId;
