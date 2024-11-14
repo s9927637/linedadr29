@@ -1,52 +1,60 @@
 import os
-import json
 import requests
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-AIRTABLE_API_URL = "https://api.airtable.com/v0/appaUWPkO0FfRkqTK/vaccinebooking"
-AIRTABLE_API_KEY = "patxDzbKgz2SejSrT.c49168d0eeb6d48540d14ea6e7d04c6179b66c43d34fa23c83fc40f7bcfe672b"
+# 從環境變數中獲取Airtable的API資料
+AIRTABLE_API_URL = f"https://api.airtable.com/v0/{os.getenv('BASE_ID')}/{os.getenv('TABLE_NAME')}"
+AIRTABLE_API_KEY = os.getenv("AIRTABLE_PERSONAL_ACCESS_TOKEN")  # Airtable的個人存取令牌
 
+# 提交表單到Airtable
 @app.route('/submit-form', methods=['POST'])
 def submit_form():
-    data = request.get_json()
-
-    # 確保資料中有 'formSubmitTime' 欄位，若沒有則設定為當前時間
-    formSubmitTime = data.get('formSubmitTime', None)
-    if formSubmitTime is None:
-        formSubmitTime = '未知時間'
-
-    userID = data['userID']
-    name = data['name']
-    phone = data['phone']
-    vaccineName = data['vaccineName']
-    appointmentDate = data['appointmentDate']
-
-    airtable_data = {
-        "fields": {
-            "姓名": name,
-            "電話": phone,
-            "疫苗名稱": vaccineName,
-            "接種日期": appointmentDate,
-            "userID": userID,
-            "系統通知": False,  # 初始設為 False
-            "填表時間": formSubmitTime
+    try:
+        # 獲取表單提交的數據 (假設是JSON格式)
+        data = request.get_json()
+        
+        # 從表單數據中提取必要的欄位
+        userID = data.get('userID')
+        name = data.get('name')
+        phone = data.get('phone')
+        vaccineName = data.get('vaccineName')
+        appointmentDate = data.get('appointmentDate')
+        formSubmitTime = data.get('formSubmitTime')
+        
+        # 準備發送到Airtable的數據
+        airtable_data = {
+            "fields": {
+                "姓名": name,
+                "電話": phone,
+                "疫苗名稱": vaccineName,
+                "接種日期": appointmentDate,
+                "userID": userID,
+                "填表時間": formSubmitTime,
+                "系統通知": False  # 預設系統通知為未勾選
+            }
         }
-    }
 
-    headers = {
-        "Authorization": f"Bearer {AIRTABLE_API_KEY}",
-        "Content-Type": "application/json"
-    }
+        # 發送POST請求到Airtable
+        response = requests.post(
+            AIRTABLE_API_URL,
+            headers={
+                "Authorization": f"Bearer {AIRTABLE_API_KEY}",
+                "Content-Type": "application/json"
+            },
+            json=airtable_data
+        )
 
-    response = requests.post(AIRTABLE_API_URL, json=airtable_data, headers=headers)
-    
-    if response.status_code == 201:
-        return jsonify({"message": "資料成功提交到 Airtable!"}), 200
-    else:
-        return jsonify({"message": "提交到 Airtable 失敗!"}), 500
+        # 檢查Airtable的API請求是否成功
+        if response.status_code == 201:
+            return jsonify({"status": "success", "message": "表單資料成功提交到Airtable!"}), 201
+        else:
+            return jsonify({"status": "error", "message": response.json()}), response.status_code
 
+    except Exception as e:
+        # 捕獲任何錯誤並返回錯誤信息
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 if __name__ == '__main__':
     # 關閉調試模式，使用預設的 host 和 port
