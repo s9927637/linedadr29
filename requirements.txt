@@ -4,3 +4,4 @@ requests
 pyairtable
 line-bot-sdk
 python-dotenv
+flask-cors
