@@ -23,7 +23,7 @@ def submit_form():
         appointmentDate = data.get('appointmentDate')
         formSubmitTime = data.get('formSubmitTime')
         
-        # 準備發送到Airtable的數據
+        # 準備發送到Airtable的數據，移除系統通知欄位
         airtable_data = {
             "fields": {
                 "姓名": name,
@@ -31,8 +31,7 @@ def submit_form():
                 "疫苗名稱": vaccineName,
                 "接種日期": appointmentDate,
                 "userID": userID,
-                "填表時間": formSubmitTime,
-                "系統通知": False  # 預設系統通知為未勾選
+                "填表時間": formSubmitTime
             }
         }
 
