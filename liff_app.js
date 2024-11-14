@@ -34,58 +34,60 @@
         }
 
         // 提交表單函數
-        function submitForm(event) {
-            event.preventDefault();  // 防止表單默認提交
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelector("form").addEventListener("submit", function(event) {
+                event.preventDefault();  // 防止表單默認提交
 
-            if (!isLiffReady) {
-                alert("請稍候，正在初始化LIFF...");
-                return;
-            }
+                if (!isLiffReady) {
+                    alert("請稍候，正在初始化LIFF...");
+                    return;
+                }
 
-            // 從 LIFF 獲取用戶的 userID
-            liff.getProfile()
-                .then(profile => {
-                    const userID = profile.userId;  // 獲取用戶的真實 userID
-                    const name = document.getElementById("name").value;
-                    const phone = document.getElementById("phone").value;
-                    const vaccineName = document.getElementById("vaccine").value;
-                    const appointmentDate = document.getElementById("vaccinationDate").value;
+                // 從 LIFF 獲取用戶的 userID
+                liff.getProfile()
+                    .then(profile => {
+                        const userID = profile.userId;  // 獲取用戶的真實 userID
+                        const name = document.getElementById("name").value;
+                        const phone = document.getElementById("phone").value;
+                        const vaccineName = document.getElementById("vaccine").value;
+                        const appointmentDate = document.getElementById("vaccinationDate").value;
 
-                    // 檢查表單資料是否完整
-                    if (!name || !phone || !vaccineName || !appointmentDate) {
-                        alert("請填寫所有欄位！");
-                        return;
-                    }
+                        // 檢查表單資料是否完整
+                        if (!name || !phone || !vaccineName || !appointmentDate) {
+                            alert("請填寫所有欄位！");
+                            return;
+                        }
 
-                    // 使用 fetch 發送 POST 請求到後端
-                    fetch("https://linedadr29.hkg1.zeabur.app/submit-form", {
-                        method: "POST",  // 以 POST 發送請求
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            userID: userID,
-                            name: name,
-                            phone: phone,
-                            vaccineName: vaccineName,
-                            appointmentDate: appointmentDate
+                        // 使用 fetch 發送 POST 請求到後端
+                        fetch("https://linedadr29.hkg1.zeabur.app/submit-form", {
+                            method: "POST",  // 以 POST 發送請求
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                userID: userID,
+                                name: name,
+                                phone: phone,
+                                vaccineName: vaccineName,
+                                appointmentDate: appointmentDate
+                            })
                         })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log("表單提交成功", data);
+                            alert("資料提交成功！");
+                        })
+                        .catch(error => {
+                            console.error("提交失敗", error);
+                            alert("資料提交失敗，請稍後再試");
+                        });
                     })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log("表單提交成功", data);
-                        alert("資料提交成功！");
-                    })
-                    .catch(error => {
-                        console.error("提交失敗", error);
-                        alert("資料提交失敗，請稍後再試");
+                    .catch(err => {
+                        console.error("獲取用戶資料失敗:", err);
+                        alert("無法獲取用戶資料，請重新登入");
                     });
-                })
-                .catch(err => {
-                    console.error("獲取用戶資料失敗:", err);
-                    alert("無法獲取用戶資料，請重新登入");
-                });
-        }
+            });
+        });
 
         // 初始化 LIFF 應用
         window.onload = initializeLiff;
@@ -98,24 +100,26 @@
         <p>正在初始化...</p>
     </div>
 
-    <form id="vaccineForm" onsubmit="submitForm(event)" method="POST" style="display:none;">
-        <label for="name">姓名：</label><br>
-        <input type="text" id="name" name="name"><br><br>
+    <div id="vaccineForm" style="display:none;">
+        <form>
+            <label for="name">姓名：</label><br>
+            <input type="text" id="name" name="name"><br><br>
 
-        <label for="phone">電話：</label><br>
-        <input type="text" id="phone" name="phone"><br><br>
+            <label for="phone">電話：</label><br>
+            <input type="text" id="phone" name="phone"><br><br>
 
-        <label for="vaccine">選擇疫苗：</label><br>
-        <select id="vaccine" name="vaccine">
-            <option value="子宮頸疫苗">子宮頸疫苗</option>
-            <option value="欣克疹疫苗">欣克疹疫苗</option>
-            <option value="A肝疫苗">A肝疫苗</option>
-        </select><br><br>
+            <label for="vaccine">選擇疫苗：</label><br>
+            <select id="vaccine" name="vaccine">
+                <option value="子宮頸疫苗">子宮頸疫苗</option>
+                <option value="欣克疹疫苗">欣克疹疫苗</option>
+                <option value="A肝疫苗">A肝疫苗</option>
+            </select><br><br>
 
-        <label for="vaccinationDate">接種日期：</label><br>
-        <input type="date" id="vaccinationDate" name="vaccinationDate"><br><br>
+            <label for="vaccinationDate">接種日期：</label><br>
+            <input type="date" id="vaccinationDate" name="vaccinationDate"><br><br>
 
-        <button type="submit">提交表單</button>
-    </form>
+            <button type="submit">提交表單</button>
+        </form>
+    </div>
 </body>
 </html>
