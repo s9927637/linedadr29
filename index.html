@@ -8,18 +8,20 @@
     <script>
         let isLiffReady = false;
 
-        function initializeLiff() {
-liff.init({ liffId: "2003645883-Rn6V0a3n" }).then(() => {
-    if (!liff.isLoggedIn()) {
-        liff.login();
-    } else {
-        document.getElementById("form").style.display = 'block';
-    }
-}).catch(err => {
-    console.error("LIFF初始化錯誤", err);
-    alert("LIFF初始化失敗");
-});
+function initializeLiff() {
+    liff.init({ liffId: "2003645883-Rn6V0a3n" }).then(() => {
+        if (!liff.isLoggedIn()) {
+            liff.login();
+        } else {
+            document.getElementById("form").style.display = 'block';
+            isLiffReady = true; // 初始化完成，設置為true
         }
+    }).catch(err => {
+        console.error("LIFF初始化錯誤", err);
+        alert("LIFF初始化失敗");
+    });
+}
+
 
         function submitForm(event) {
     event.preventDefault();
