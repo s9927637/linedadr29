@@ -37,6 +37,7 @@ def health_check():
 # 只處理 POST 請求
 @app.route('/submit-form', methods=['POST'])
 def submit_form():
+    print(request.json) 
     data = request.json
     # 處理數據
     return jsonify({'status': 'success'})
