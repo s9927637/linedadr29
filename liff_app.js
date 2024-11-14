@@ -6,6 +6,8 @@
     <title>LIFF 表單</title>
     <script src="https://static.line-scdn.net/liff/2.1/sdk.js"></script>
     <script>
+        let isLiffReady = false;
+
         // 初始化 LIFF
         function initializeLiff() {
             console.log("初始化 LIFF 應用中...");
@@ -20,6 +22,9 @@
                         liff.login();
                     } else {
                         console.log("用戶已經登入");
+                        isLiffReady = true;  // 用戶登入成功
+                        document.getElementById("loadingMessage").style.display = 'none'; // 隱藏初始化訊息
+                        document.getElementById("vaccineForm").style.display = 'block'; // 顯示表單
                     }
                 })
                 .catch(err => {
@@ -30,46 +35,70 @@
 
         // 提交表單函數
         function submitForm(event) {
-    event.preventDefault();  // 防止表單默認提交
+            event.preventDefault();  // 防止表單默認提交
 
-    const userID = 'user123';  // 假設從 LIFF 用戶資料中獲取
-    const name = document.getElementById("name").value;
-    const phone = document.getElementById("phone").value;
-    const vaccineName = document.getElementById("vaccine").value;
-    const appointmentDate = document.getElementById("vaccinationDate").value;
+            if (!isLiffReady) {
+                alert("請稍候，正在初始化LIFF...");
+                return;
+            }
 
-    // 使用 fetch 發送 POST 請求到後端
-    fetch("https://linedadr29.hkg1.zeabur.app/submit-form", {
-        method: "POST",  // 以 POST 發送請求
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            userID: userID,
-            name: name,
-            phone: phone,
-            vaccineName: vaccineName,
-            appointmentDate: appointmentDate
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log("表單提交成功", data);
-        alert("資料提交成功！");
-    })
-    .catch(error => {
-        console.error("提交失敗", error);
-        alert("資料提交失敗，請稍後再試");
-    });
-}
+            // 從 LIFF 獲取用戶的 userID
+            liff.getProfile()
+                .then(profile => {
+                    const userID = profile.userId;  // 獲取用戶的真實 userID
+                    const name = document.getElementById("name").value;
+                    const phone = document.getElementById("phone").value;
+                    const vaccineName = document.getElementById("vaccine").value;
+                    const appointmentDate = document.getElementById("vaccinationDate").value;
+
+                    // 檢查表單資料是否完整
+                    if (!name || !phone || !vaccineName || !appointmentDate) {
+                        alert("請填寫所有欄位！");
+                        return;
+                    }
+
+                    // 使用 fetch 發送 POST 請求到後端
+                    fetch("https://linedadr29.hkg1.zeabur.app/submit-form", {
+                        method: "POST",  // 以 POST 發送請求
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            userID: userID,
+                            name: name,
+                            phone: phone,
+                            vaccineName: vaccineName,
+                            appointmentDate: appointmentDate
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("表單提交成功", data);
+                        alert("資料提交成功！");
+                    })
+                    .catch(error => {
+                        console.error("提交失敗", error);
+                        alert("資料提交失敗，請稍後再試");
+                    });
+                })
+                .catch(err => {
+                    console.error("獲取用戶資料失敗:", err);
+                    alert("無法獲取用戶資料，請重新登入");
+                });
+        }
 
         // 初始化 LIFF 應用
-        initializeLiff();
+        window.onload = initializeLiff;
     </script>
 </head>
 <body>
     <h1>疫苗預約表單</h1>
-    <form id="vaccineForm" onsubmit="submitForm(event)" method="POST">
+    
+    <div id="loadingMessage">
+        <p>正在初始化...</p>
+    </div>
+
+    <form id="vaccineForm" onsubmit="submitForm(event)" method="POST" style="display:none;">
         <label for="name">姓名：</label><br>
         <input type="text" id="name" name="name"><br><br>
 
