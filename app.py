@@ -65,11 +65,6 @@ def submit_form():
         logger.error(f"儲存至 Airtable 時出錯: {str(e)}")
         return jsonify({'status': 'error', 'message': 'Failed to save data to Airtable'}), 500
 
-# 處理不允許的 GET 請求
-@app.route('/submit-form', methods=['GET'])
-def handle_get():
-    return jsonify({'status': 'error', 'message': 'GET method not allowed on this route'}), 405
-
 if __name__ == '__main__':
     # 關閉調試模式，使用預設的 host 和 port
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)), debug=False)
