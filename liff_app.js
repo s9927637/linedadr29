@@ -55,25 +55,20 @@
                     }
 
                     // 送出資料到後端
-                    fetch("https://linedadr29.hkg1.zeabur.app/submit-form", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ userID, name, phone, vaccineName, appointmentDate })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log("表單提交成功", data);
-                        alert("表單提交成功！");
-                    })
-                    .catch(error => {
-                        console.error("提交失敗", error);
-                        alert("提交失敗，請稍後再試。");
-                    });
-                })
-                .catch(err => {
-                    console.error("獲取用戶資料錯誤:", err);
-                    alert("獲取用戶資料失敗，請重新登入。");
-                });
+fetch("https://linedadr29.hkg1.zeabur.app/submit-form", {
+    method: "POST",  // 確保這裡是 POST 請求
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userID, name, phone, vaccineName, appointmentDate })
+})
+.then(response => response.json())
+.then(data => {
+    console.log("表單提交成功", data);
+    alert("表單提交成功！");
+})
+.catch(error => {
+    console.error("提交失敗", error);
+    alert("提交失敗，請稍後再試。");
+});
         }
 
         // 初始化 LIFF 應用
