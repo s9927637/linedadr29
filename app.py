@@ -72,4 +72,5 @@ def get_form():
     return jsonify({'status': 'success', 'message': 'Submit form page available for POST requests only'}), 405
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)), debug=True)
+    # 關閉調試模式，使用預設的 host 和 port
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)), debug=False)
