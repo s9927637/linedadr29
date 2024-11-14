@@ -82,7 +82,7 @@
 </head>
 <body>
     <h1>疫苗預約表單</h1>
-    <form id="vaccineForm" onsubmit="submitForm(event)">
+    <form id="vaccineForm" onsubmit="submitForm(event)" method="POST">
         <label for="name">姓名：</label><br>
         <input type="text" id="name" name="name"><br><br>
 
