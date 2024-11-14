@@ -35,17 +35,11 @@ def health_check():
     return jsonify({'status': 'healthy'}), 200
 
 # 只處理 POST 請求
-@app.route('/submit-form', methods=['POST', 'GET'])
+@app.route('/submit-form', methods=['POST'])
 def submit_form():
-    if request.method == 'GET':
-        # 處理 GET 請求邏輯
-        return "GET Request Received"
-    elif request.method == 'POST':
-        # 處理 POST 請求邏輯，並將資料存入 Airtable
-        data = request.json
-        # 將資料儲存至 Airtable
-        return jsonify({"status": "success"})
-    logger.info(f"收到的資料: {data}")  # 輸出接收到的資料
+    data = request.json
+    # 處理數據
+    return jsonify({'status': 'success'})
 
     # 驗證傳入資料
     if 'userID' not in data:
