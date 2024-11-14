@@ -29,10 +29,22 @@ def home():
     logger.info("根路由被訪問")
     return jsonify({'status': 'success', 'message': 'Welcome to the LIFF App API', 'base_url': BASE_URL}), 200
 
+# Zeabur，用於健康檢查 URL
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({'status': 'healthy'}), 200
+
 # 只處理 POST 請求
-@app.route('/submit-form', methods=['POST'])
+@app.route('/submit-form', methods=['POST', 'GET'])
 def submit_form():
-    data = request.get_json()
+    if request.method == 'GET':
+        # 處理 GET 請求邏輯
+        return "GET Request Received"
+    elif request.method == 'POST':
+        # 處理 POST 請求邏輯，並將資料存入 Airtable
+        data = request.json
+        # 將資料儲存至 Airtable
+        return jsonify({"status": "success"})
     logger.info(f"收到的資料: {data}")  # 輸出接收到的資料
 
     # 驗證傳入資料
