@@ -2,8 +2,10 @@ import os
 import logging
 from flask import Flask, request, jsonify
 from pyairtable import Api
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # 設置日誌輸出至標準輸出
 logging.basicConfig(level=logging.INFO)
