@@ -11,12 +11,17 @@ AIRTABLE_API_KEY = "patxDzbKgz2SejSrT.c49168d0eeb6d48540d14ea6e7d04c6179b66c43d3
 @app.route('/submit-form', methods=['POST'])
 def submit_form():
     data = request.get_json()
+
+    # 確保資料中有 'formSubmitTime' 欄位，若沒有則設定為當前時間
+    formSubmitTime = data.get('formSubmitTime', None)
+    if formSubmitTime is None:
+        formSubmitTime = '未知時間'
+
     userID = data['userID']
     name = data['name']
     phone = data['phone']
     vaccineName = data['vaccineName']
     appointmentDate = data['appointmentDate']
-    formSubmitTime = data['formSubmitTime']
 
     airtable_data = {
         "fields": {
@@ -41,6 +46,7 @@ def submit_form():
         return jsonify({"message": "資料成功提交到 Airtable!"}), 200
     else:
         return jsonify({"message": "提交到 Airtable 失敗!"}), 500
+
 
 if __name__ == '__main__':
     # 關閉調試模式，使用預設的 host 和 port
