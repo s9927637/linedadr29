@@ -28,8 +28,10 @@
                 });
         }
 
-        // 提交表單
-        function submitForm() {
+        // 提交表單函數
+        function submitForm(event) {
+            event.preventDefault(); // 防止默認表單提交
+
             // 確保用戶已經登入
             if (!liff.isLoggedIn()) {
                 alert("請登入以提交表單");
@@ -80,7 +82,7 @@
 </head>
 <body>
     <h1>疫苗預約表單</h1>
-    <form id="vaccineForm" method="POST">
+    <form id="vaccineForm" onsubmit="submitForm(event)">
         <label for="name">姓名：</label><br>
         <input type="text" id="name" name="name"><br><br>
 
@@ -97,7 +99,7 @@
         <label for="vaccinationDate">接種日期：</label><br>
         <input type="date" id="vaccinationDate" name="vaccinationDate"><br><br>
 
-        <button type="button" onclick="submitForm()">提交表單</button>
+        <button type="submit">提交表單</button>
     </form>
 </body>
 </html>
