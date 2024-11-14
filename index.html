@@ -25,52 +25,55 @@
         }
 
         function submitForm(event) {
-            event.preventDefault();
+    event.preventDefault();
 
-            if (!isLiffReady) {
-                alert("正在初始化 LIFF");
-                return;
-            }
+    if (!isLiffReady) {
+        alert("正在初始化 LIFF");
+        return;
+    }
 
-            // 獲取用戶 profile 和表單資料
-            liff.getProfile().then(profile => {
-                const userID = profile.userId;
-                const name = document.getElementById("name").value;
-                const phone = document.getElementById("phone").value;
-                const vaccineName = document.getElementById("vaccine").value;
-                const appointmentDate = document.getElementById("date").value;
-
-                // 確保資料已填寫
-                if (!name || !phone || !vaccineName || !appointmentDate) {
-                    alert("請填寫所有欄位！");
-                    return;
-                }
-
-                // 傳送資料到 Zeabur 伺服器
-                fetch("https://linedadr29.hkg1.zeabur.app/submit-form", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        userID: userID,
-                        name: name,
-                        phone: phone,
-                        vaccineName: vaccineName,
-                        appointmentDate: appointmentDate,
-                        formSubmitTime: new Date().toISOString()
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    alert("資料成功提交");
-                    window.location.href = "https://line.me/R/nv/recommendOA/xxxx"; // 引導回 LINE
-                })
-                .catch(error => {
-                    alert("提交資料失敗，請稍後再試！");
-                });
-            }).catch(err => {
-                alert("無法獲取用戶資料");
-            });
+    // 獲取用戶 profile 和表單資料
+    liff.getProfile().then(profile => {
+        const userID = profile.userId;
+        const name = document.getElementById("name").value;
+        const phone = document.getElementById("phone").value;
+        const vaccineName = document.getElementById("vaccine").value;
+        const appointmentDate = document.getElementById("date").value;
+        
+        // 確保資料已填寫
+        if (!name || !phone || !vaccineName || !appointmentDate) {
+            alert("請填寫所有欄位！");
+            return;
         }
+
+        const formSubmitTime = new Date().toISOString();  // 當前時間
+
+        // 傳送資料到 Zeabur 伺服器
+        fetch("https://linedadr29.hkg1.zeabur.app/submit-form", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                userID: userID,
+                name: name,
+                phone: phone,
+                vaccineName: vaccineName,
+                appointmentDate: appointmentDate,
+                formSubmitTime: formSubmitTime  // 確保傳送此欄位
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert("資料成功提交");
+            window.location.href = "https://line.me/R/nv/recommendOA/xxxx"; // 引導回 LINE
+        })
+        .catch(error => {
+            alert("提交資料失敗，請稍後再試！");
+        });
+    }).catch(err => {
+        alert("無法獲取用戶資料");
+    });
+}
+
 
         window.onload = initializeLiff;
     </script>
