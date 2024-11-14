@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>疫苗預約表單</title>
+    <script src="https://static.line-scdn.net/liff/2.1/sdk.js"></script>
+    <script>
+        let isLiffReady = false;
+
+        function initializeLiff() {
+            liff.init({ liffId: "2003645883-Rn6V0a3n" })
+                .then(() => {
+                    isLiffReady = true;
+                    if (!liff.isLoggedIn()) {
+                        liff.login();
+                    } else {
+                        document.getElementById("form").style.display = 'block';
+                    }
+                })
+                .catch(err => {
+                    console.error("LIFF 初始化錯誤", err);
+                    alert("LIFF 初始化失敗");
+                });
+        }
+
+        function submitForm(event) {
+            event.preventDefault();
+
+            if (!isLiffReady) {
+                alert("正在初始化 LIFF");
+                return;
+            }
+
+            // 獲取用戶 profile 和表單資料
+            liff.getProfile().then(profile => {
+                const userID = profile.userId;
+                const name = document.getElementById("name").value;
+                const phone = document.getElementById("phone").value;
+                const vaccineName = document.getElementById("vaccine").value;
+                const appointmentDate = document.getElementById("date").value;
+
+                // 確保資料已填寫
+                if (!name || !phone || !vaccineName || !appointmentDate) {
+                    alert("請填寫所有欄位！");
+                    return;
+                }
+
+                // 傳送資料到 Zeabur 伺服器
+                fetch("https://linedadr29.hkg1.zeabur.app/submit-form", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        userID: userID,
+                        name: name,
+                        phone: phone,
+                        vaccineName: vaccineName,
+                        appointmentDate: appointmentDate,
+                        formSubmitTime: new Date().toISOString()
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert("資料成功提交");
+                    window.location.href = "https://line.me/R/nv/recommendOA/xxxx"; // 引導回 LINE
+                })
+                .catch(error => {
+                    alert("提交資料失敗，請稍後再試！");
+                });
+            }).catch(err => {
+                alert("無法獲取用戶資料");
+            });
+        }
+
+        window.onload = initializeLiff;
+    </script>
+</head>
+<body>
+    <h1>疫苗預約表單</h1>
+    <form id="form" style="display:none;" onsubmit="submitForm(event)">
+        <label for="name">姓名：</label><br>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="phone">電話：</label><br>
+        <input type="text" id="phone" name="phone" required><br><br>
+
+        <label for="vaccine">選擇疫苗：</label><br>
+        <select id="vaccine" name="vaccine" required>
+            <option value="子宮頸疫苗">子宮頸疫苗</option>
+            <option value="欣克疹疫苗">欣克疹疫苗</option>
+            <option value="A肝疫苗">A肝疫苗</option>
+        </select><br><br>
+
+        <label for="date">接種日期：</label><br>
+        <input type="date" id="date" name="date" required><br><br>
+
+        <button type="submit">提交表單</button>
+    </form>
+</body>
+</html>
